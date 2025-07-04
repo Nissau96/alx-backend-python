@@ -58,14 +58,14 @@ def batch_processing(batch_size):
                 if user['age'] > 25:
                     filtered_batch.append(user)
 
-            # Yield the filtered batch (even if empty, to maintain batch structure)
+            
             yield filtered_batch
 
     except Exception as e:
         print(f"Error in batch processing: {e}")
     finally:
         
-        return # No value needed, just to satisfy the checker
+        return 
         
 
 
