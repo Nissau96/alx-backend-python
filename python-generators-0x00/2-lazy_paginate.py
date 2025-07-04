@@ -74,13 +74,13 @@ def process_paginated_users(page_size):
                 if user['age'] > 25:
                     filtered_page.append(user)
             
-            # Yield the filtered page (even if empty, to maintain page structure)
+           
             yield filtered_page
             
     except Exception as e:
         print(f"Error in paginated processing: {e}")
     finally:
-        return  # No value needed, just to satisfy the checker
+        return 
 
 
 if __name__ == "__main__":
