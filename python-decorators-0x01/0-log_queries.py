@@ -65,7 +65,7 @@ if __name__ == "__main__":
         conn.close()
 
 
-    
+
     setup_test_db()
 
     #### fetch users while logging the query
