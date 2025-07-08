@@ -78,7 +78,7 @@ def update_user_email(conn, user_id, new_email):
 @with_db_connection
 @transactional
 def update_and_fail(conn, user_id, new_email):
-    
+
     cursor = conn.cursor()
     print(f"\nAttempting to update user ID {user_id} email to {new_email} and then fail...")
     cursor.execute("UPDATE users SET email = ? WHERE id = ?", (new_email, user_id))
