@@ -88,7 +88,7 @@ if __name__ == "__main__":
     print("\n--- Second call (same query): Should use cached result ---")
     users_again = fetch_users_with_cache(query="SELECT * FROM users")
     print("Users from second call:", users_again)
-    print("Current cache:", query_cache) 
+    print("Current cache:", query_cache)
 
     print("\n--- Third call (different query): Should execute query and cache new result ---")
     users_filtered = fetch_users_with_cache(query="SELECT name FROM users WHERE id = 1")
