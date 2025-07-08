@@ -44,7 +44,7 @@ def fetch_all_users(query):
 
 # Test the decorator
 if __name__ == "__main__":
-    # This will create a simple test database if it doesn't exist
+
     def setup_test_db():
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
@@ -55,14 +55,14 @@ if __name__ == "__main__":
                 email TEXT UNIQUE
             )
         ''')
-        # Insert some test data
+
         cursor.execute("INSERT OR IGNORE INTO users (name, email) VALUES ('John Doe', 'john@example.com')")
         cursor.execute("INSERT OR IGNORE INTO users (name, email) VALUES ('Jane Smith', 'jane@example.com')")
         conn.commit()
         conn.close()
 
 
-    # Setup test database
+
     setup_test_db()
 
     #### fetch users while logging the query
