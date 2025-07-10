@@ -7,7 +7,7 @@ def with_db_connection(func):
     def wrapper(*args, **kwargs):
         conn = None # Initialize conn to None
         try:
-            conn = sqlite3.connect('users.db') # Open the connection
+            conn = sqlite3.connect('users.db')
 
             result = func(conn, *args, **kwargs)
             return result
@@ -15,7 +15,7 @@ def with_db_connection(func):
             print(f"Database error: {e}")
             raise # Re-raise the exception after printing
         finally:
-            if conn: # Ensure conn is not None before closing
+            if conn:
                 conn.close() # Close the connection
     return wrapper
 
@@ -26,7 +26,7 @@ def get_user_by_id(conn, user_id):
     cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     return cursor.fetchone()
 
-#### Database Setup (for demonstration purposes)
+#### Database Setup
 def setup_database():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()

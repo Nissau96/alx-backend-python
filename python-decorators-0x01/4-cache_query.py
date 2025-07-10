@@ -10,12 +10,12 @@ def with_db_connection(func):
         conn = None
         try:
             conn = sqlite3.connect('users.db')
-            # Pass the connection as the first argument to the decorated function
+
             result = func(conn, *args, **kwargs)
             return result
         except sqlite3.Error as e:
             print(f"Database connection or operation error in with_db_connection: {e}")
-            raise # Re-raise the exception after printing
+            raise
         finally:
             if conn:
                 conn.close()
@@ -28,13 +28,12 @@ query_cache = {}
 def cache_query(func):
 
     @functools.wraps(func)
-    def wrapper(conn, *args, **kwargs): # 'conn' is expected as the first argument
-        # Determine the query string from the arguments
+    def wrapper(conn, *args, **kwargs):
         query = None
         if 'query' in kwargs:
             query = kwargs['query']
         elif len(args) > 0 and isinstance(args[0], str): # Check if query is the first of *args (i.e., second overall argument)
-             query = args[0] # Assuming query is the second argument after conn
+             query = args[0]
 
         if not query:
             print(f"Warning: Could not find query string in arguments for {func.__name__}. Skipping cache.")

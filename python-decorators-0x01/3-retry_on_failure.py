@@ -11,12 +11,12 @@ def with_db_connection(func):
         conn = None
         try:
             conn = sqlite3.connect('users.db')
-            # Pass the connection as the first argument to the decorated function
+
             result = func(conn, *args, **kwargs)
             return result
         except sqlite3.Error as e:
             print(f"Database connection or operation error in with_db_connection: {e}")
-            raise  # Re-raise the exception after printing
+            raise
         finally:
             if conn:
                 conn.close()
@@ -32,7 +32,7 @@ def retry_on_failure(retries=3, delay=2):
         def wrapper(*args, **kwargs):
             for i in range(retries + 1):
                 try:
-                    return func(*args, **kwargs)  # Attempt to execute the function
+                    return func(*args, **kwargs)
                 except Exception as e:
                     print(f"Attempt {i + 1}/{retries + 1} failed for {func.__name__}: {e}")
                     if i < retries:
@@ -40,7 +40,7 @@ def retry_on_failure(retries=3, delay=2):
                         time.sleep(delay)
                     else:
                         print(f"All {retries + 1} attempts failed for {func.__name__}. Re-raising the last error.")
-                        raise  # Re-raise the last exception if all retries are exhausted
+                        raise
 
         return wrapper
 
