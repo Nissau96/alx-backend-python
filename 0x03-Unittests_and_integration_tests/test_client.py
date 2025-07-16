@@ -113,9 +113,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher.stop()
 
     def test_public_repos(self):
-        """
-        Task 8: Test public_repos method in an integration-like manner.
-        """
+
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
