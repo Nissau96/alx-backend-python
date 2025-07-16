@@ -33,13 +33,16 @@ class TestGithubOrgClient(unittest.TestCase):
         """
         Task 5: Test the _public_repos_url property.
         """
-        known_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
+        known_payload = {
+            "repos_url": "https://api.github.com/orgs/google/repos"
+        }
         with patch.object(GithubOrgClient,
                           'org',
                           new_callable=PropertyMock) as mock_org:
             mock_org.return_value = known_payload
             client = GithubOrgClient("google")
-            self.assertEqual(client._public_repos_url, known_payload["repos_url"])
+            self.assertEqual(client._public_repos_url,
+                             known_payload["repos_url"])
 
     @patch('client.get_json')
     def test_public_repos(self, mock_get_json):
@@ -73,7 +76,8 @@ class TestGithubOrgClient(unittest.TestCase):
         """
         Task 7: Test the has_license static method.
         """
-        self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
+        self.assertEqual(GithubOrgClient.has_license(repo, license_key),
+                         expected)
 
 
 # Break the long line for the decorator into multiple lines
