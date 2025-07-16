@@ -110,10 +110,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """
-        Set up the class fixture by patching requests.get.
-        This method is called once before any tests in the class are run.
-        """
+
         # This side_effect function will return a different mock response
         # based on the URL it receives.
         def side_effect(url):
