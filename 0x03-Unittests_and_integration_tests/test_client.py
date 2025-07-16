@@ -129,10 +129,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Tear down the class fixture by stopping the patcher.
-        This method is called once after all tests in the class have run.
-        """
+
         cls.get_patcher.stop()
 
     def test_public_repos(self):
