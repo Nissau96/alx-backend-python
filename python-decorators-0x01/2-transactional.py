@@ -14,7 +14,7 @@ def with_db_connection(func):
             return result
         except sqlite3.Error as e:
             print(f"Database connection or operation error: {e}")
-            raise # Re-raise the exception after printing
+            raise
         finally:
             if conn:
                 conn.close()
@@ -24,22 +24,22 @@ def with_db_connection(func):
 def transactional(func):
 
     @functools.wraps(func)
-    def wrapper(conn, *args, **kwargs): # The 'conn' is now expected as the first argument
+    def wrapper(conn, *args, **kwargs):
         try:
-            result = func(conn, *args, **kwargs) # Execute the decorated function
-            conn.commit() # If no error, commit the transaction
+            result = func(conn, *args, **kwargs)
+            conn.commit()
             print("Transaction committed successfully.")
             return result
         except Exception as e: # Catch any exception
-            if conn: # Ensure conn exists before attempting rollback
+            if conn:
                 conn.rollback() # Rollback changes if an error occurs
                 print(f"Transaction rolled back due to error: {e}")
             else:
                 print(f"Error occurred, but no connection to rollback: {e}")
-            raise # Re-raise the exception to propagate it
+            raise
     return wrapper
 
-# --- Database Setup (for demonstration purposes) ---
+# --- Database Setup  ---
 def setup_database():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
