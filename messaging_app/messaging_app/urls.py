@@ -1,3 +1,5 @@
+# messaging_app/messaging_app/urls.py
+
 """
 URL configuration for messaging_app project.
 
@@ -14,9 +16,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include # Make sure 'include' is imported
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Add this line to include your app's API URLs
+    path('api/', include('chats.urls')),
 ]
