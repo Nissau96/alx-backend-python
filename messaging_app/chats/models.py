@@ -10,6 +10,7 @@ class User(AbstractUser):
     """
     Custom User model with UUID primary key and phone number.
     Email is used as the unique identifier for login.
+    The 'password' field is inherited from AbstractUser.
     """
     # Override the username field to be None
     username = None
