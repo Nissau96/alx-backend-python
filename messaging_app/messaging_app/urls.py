@@ -19,10 +19,14 @@ Including another URLconf
 
 
 from django.contrib import admin
-from django.urls import path, include # Make sure 'include' is imported
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Add this line to include your app's API URLs
+
+    # URL routes for your API
     path('api/', include('chats.urls')),
+
+    # Add this line for browsable API authentication
+    path('api-auth/', include('rest_framework.urls')),
 ]
