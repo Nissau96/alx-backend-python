@@ -1,8 +1,11 @@
 # chats/middleware.py
 
 import logging
-from datetime import time
-from django.http import HttpResponseForbidden
+import time
+from datetime import time as dt_time
+
+from django.core import cache
+from django.http import HttpResponseForbidden, JsonResponse
 from django.utils import timezone
 
 # Get the logger we configured in settings.py
@@ -29,8 +32,6 @@ class RequestLoggingMiddleware:
         return response
 
 
-# FIX: This class was moved out from inside the class above.
-# It must be a separate, top-level class.
 class RestrictAccessByTimeMiddleware:
     """
     Restricts access to the application to a specific time window.
@@ -51,3 +52,62 @@ class RestrictAccessByTimeMiddleware:
 
         response = self.get_response(request)
         return response
+
+
+class RateLimitMiddleware:
+    """
+    Limits the number of POST requests an IP address can make to 5 per minute.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # We only want to rate-limit POST requests for sending messages
+        if request.method != 'POST':
+            return self.get_response(request)
+
+        # Get the client's IP address
+        ip_address = self.get_client_ip(request)
+        if not ip_address:
+            # If we can't get the IP, let the request pass
+            return self.get_response(request)
+
+        # Define the limits
+        REQUEST_LIMIT = 5
+        TIME_WINDOW = 60  # seconds
+
+        # Use the IP address as the cache key
+        cache_key = f"rate_limit_{ip_address}"
+
+        # Get the list of recent request timestamps from the cache
+        request_timestamps = cache.get(cache_key, [])
+
+        # Get the current time
+        current_time = time.time()
+
+        # Filter out timestamps that are outside the time window
+        recent_timestamps = [ts for ts in request_timestamps if current_time - ts < TIME_WINDOW]
+
+        # If the user has exceeded the limit, return a 429 error
+        if len(recent_timestamps) >= REQUEST_LIMIT:
+            return JsonResponse(
+                {'error': 'Rate limit exceeded. Please try again later.'},
+                status=429  # 429 Too Many Requests
+            )
+
+        # Add the current timestamp and save it back to the cache
+        recent_timestamps.append(current_time)
+        cache.set(cache_key, recent_timestamps, TIME_WINDOW)
+
+        # Allow the request to proceed
+        return self.get_response(request)
+
+    def get_client_ip(self, request):
+        """Helper function to get the client's real IP address."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
