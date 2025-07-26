@@ -1,0 +1,34 @@
+INFO 2025-07-25 08:56:32,723 autoreload 34532 2832 Watching for file changes with StatReloader
+INFO 2025-07-25 09:00:45,908 autoreload 34532 2832 E:\Coding Workspace\ALX\alx-backend-python\messaging_app\messaging_app\settings.py changed, reloading.
+INFO 2025-07-25 09:00:47,503 autoreload 31960 41516 Watching for file changes with StatReloader
+INFO 2025-07-25 09:01:20,395 autoreload 14084 45224 Watching for file changes with StatReloader
+INFO 2025-07-25 09:05:08,584 autoreload 40396 43692 Watching for file changes with StatReloader
+INFO 2025-07-25 09:10:19,824 autoreload 40396 43692 E:\Coding Workspace\ALX\alx-backend-python\messaging_app\chats\views.py changed, reloading.
+INFO 2025-07-25 09:10:20,934 autoreload 36528 45600 Watching for file changes with StatReloader
+INFO 2025-07-25 09:10:42,460 autoreload 36528 45600 E:\Coding Workspace\ALX\alx-backend-python\messaging_app\chats\views.py changed, reloading.
+INFO 2025-07-25 09:10:43,282 autoreload 26312 37112 Watching for file changes with StatReloader
+INFO 2025-07-25 09:14:08,842 autoreload 26312 37112 E:\Coding Workspace\ALX\alx-backend-python\messaging_app\chats\views.py changed, reloading.
+INFO 2025-07-25 09:14:09,774 autoreload 620 15524 Watching for file changes with StatReloader
+INFO 2025-07-25 09:14:37,638 autoreload 620 15524 E:\Coding Workspace\ALX\alx-backend-python\messaging_app\chats\views.py changed, reloading.
+INFO 2025-07-25 09:14:38,429 autoreload 20424 21696 Watching for file changes with StatReloader
+WARNING 2025-07-25 09:16:04,914 log 20424 44292 Not Found: /
+WARNING 2025-07-25 09:16:04,915 basehttp 20424 44292 "GET / HTTP/1.1" 404 2825
+WARNING 2025-07-25 09:16:06,743 log 20424 44292 Not Found: /favicon.ico
+WARNING 2025-07-25 09:16:06,744 basehttp 20424 44292 "GET /favicon.ico HTTP/1.1" 404 2876
+INFO 2025-07-25 09:16:30,495 basehttp 20424 7080 "GET /api/conversations HTTP/1.1" 301 0
+WARNING 2025-07-25 09:16:30,512 log 20424 36928 Unauthorized: /api/conversations/
+WARNING 2025-07-25 09:16:30,513 basehttp 20424 36928 "GET /api/conversations/ HTTP/1.1" 401 58
+WARNING 2025-07-25 09:19:10,765 log 20424 34496 Unauthorized: /api/conversations/1/messages/
+WARNING 2025-07-25 09:19:10,767 basehttp 20424 34496 "GET /api/conversations/1/messages/ HTTP/1.1" 401 58
+WARNING 2025-07-25 09:36:48,413 log 20424 42304 Bad Request: /api/token/
+WARNING 2025-07-25 09:36:48,421 basehttp 20424 42304 "POST /api/token/ HTTP/1.1" 400 76
+WARNING 2025-07-25 09:38:49,992 log 20424 42304 Bad Request: /api/token/
+WARNING 2025-07-25 09:38:49,993 basehttp 20424 42304 "POST /api/token/ HTTP/1.1" 400 76
+WARNING 2025-07-25 09:39:16,186 log 20424 42304 Bad Request: /api/token/
+WARNING 2025-07-25 09:39:16,186 basehttp 20424 42304 "POST /api/token/ HTTP/1.1" 400 76
+WARNING 2025-07-25 09:40:44,269 log 20424 42304 Unauthorized: /api/conversations/
+WARNING 2025-07-25 09:40:44,269 basehttp 20424 42304 "GET /api/conversations/ HTTP/1.1" 401 58
+WARNING 2025-07-25 09:43:12,645 log 20424 42304 Unauthorized: /api/conversations/
+WARNING 2025-07-25 09:43:12,646 basehttp 20424 42304 "POST /api/conversations/ HTTP/1.1" 401 58
+WARNING 2025-07-25 09:43:20,192 log 20424 42304 Unauthorized: /api/conversations/
+WARNING 2025-07-25 09:43:20,193 basehttp 20424 42304 "POST /api/conversations/ HTTP/1.1" 401 58

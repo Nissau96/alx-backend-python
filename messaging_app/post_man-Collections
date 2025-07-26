@@ -1,0 +1,210 @@
+{
+  "info": {
+    "_postman_id": "e6e1c1a4-3b0c-4b94-9a4a-0b2d1f9dc111",
+    "name": "messaging_app API Tests (JWT, Conversations, Messages)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Covers Task 4: JWT login, create conversation, send & fetch messages, and negative (unauthorized) cases."
+  },
+  "item": [
+    {
+      "name": "Auth - Obtain Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/token/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "token", ""]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.environment.set(\"access_token\", json.access);",
+              "pm.environment.set(\"refresh_token\", json.refresh);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth - Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/token/refresh/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "token", "refresh", ""]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.environment.set(\"access_token\", json.access);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversations - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"participants\": [{{other_user_id}}]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/conversations/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "conversations", ""]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Created 201\", function () { pm.response.to.have.status(201); });",
+              "var json = pm.response.json();",
+              "pm.environment.set(\"conversation_id\", json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversations - List (mine)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/conversations/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "conversations", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Messages - Send",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"conversation_id\": {{conversation_id}},\n  \"content\": \"Hello from Postman!\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/messages/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "messages", ""]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Created 201\", function () { pm.response.to.have.status(201); });",
+              "var json = pm.response.json();",
+              "pm.environment.set(\"message_id\", json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages - List in Conversation",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/conversations/{{conversation_id}}/messages/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "conversations", "{{conversation_id}}", "messages", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "NEGATIVE: Other user tries to read my conversation (403/401 expected)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{other_user_access_token}}", "type": "text" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/conversations/{{conversation_id}}/messages/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "conversations", "{{conversation_id}}", "messages", ""]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Forbidden or Unauthorized\", function () {",
+              "  pm.expect([401, 403]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "username", "value": "user1" },
+    { "key": "password", "value": "changeme" },
+    { "key": "other_user_id", "value": "2" },
+    { "key": "other_user_access_token", "value": "" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "conversation_id", "value": "" },
+    { "key": "message_id", "value": "" }
+  ]
+}
