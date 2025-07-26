@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'chats.middleware.RequestLoggingMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'Django-Middleware-0x03.urls'
 
 TEMPLATES = [
     {
