@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'chats.middleware.RequestLoggingMiddleware',
 ]
 
-ROOT_URLCONF = 'messaging_app.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
