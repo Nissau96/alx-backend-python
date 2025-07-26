@@ -1,7 +1,7 @@
 # chats/middleware.py
 
 import logging
-from datetime import datetime
+from django.utils import timezone
 
 # Get the logger we configured in settings.py
 request_logger = logging.getLogger('request_logger')
@@ -30,7 +30,7 @@ class RequestLoggingMiddleware:
 
         # Log the details using our configured logger
         request_logger.info(
-            f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - User: {user} - Path: {request.path}"
+            f"{timezone.now().now().strftime('%Y-%m-%d %H:%M:%S')} - User: {user} - Path: {request.path}"
         )
 
         # Pass the request to the next middleware or view
