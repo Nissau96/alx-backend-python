@@ -54,7 +54,7 @@ class RestrictAccessByTimeMiddleware:
         return response
 
 
-class RateLimitMiddleware:
+class OffensiveLanguageMiddleware:
     """
     Limits the number of POST requests an IP address can make to 5 per minute.
     """
