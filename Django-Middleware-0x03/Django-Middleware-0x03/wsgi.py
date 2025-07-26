@@ -1,5 +1,5 @@
 """
-WSGI config for messaging_app project.
+WSGI config for Django-Middleware-0x03 project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -1,5 +1,5 @@
 """
-ASGI config for messaging_app project.
+ASGI config for Django-Middleware-0x03 project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
