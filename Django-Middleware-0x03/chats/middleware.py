@@ -1,6 +1,8 @@
 # chats/middleware.py
 
 import logging
+from datetime import time
+from django.http import HttpResponseForbidden
 from django.utils import timezone
 
 # Get the logger we configured in settings.py
@@ -13,29 +15,39 @@ class RequestLoggingMiddleware:
     """
 
     def __init__(self, get_response):
-        """
-        Called once by Django during server startup.
-        'get_response' is a callable that represents the next middleware or the view.
-        """
         self.get_response = get_response
 
     def __call__(self, request):
-        """
-        Called on every request. This is where the main logic resides.
-        """
-
-        # If the user is authenticated, request.user will be a User object.
-        # If not, it will be an AnonymousUser object.
         user = request.user if request.user.is_authenticated else "Anonymous"
 
-        # Log the details using our configured logger
+        # FIX: Removed the extra .now() call
         request_logger.info(
-            f"{timezone.now().now().strftime('%Y-%m-%d %H:%M:%S')} - User: {user} - Path: {request.path}"
+            f"{timezone.now().strftime('%Y-%m-%d %H:%M:%S')} - User: {user} - Path: {request.path}"
         )
 
-        # Pass the request to the next middleware or view
         response = self.get_response(request)
+        return response
 
 
+# FIX: This class was moved out from inside the class above.
+# It must be a separate, top-level class.
+class RestrictAccessByTimeMiddleware:
+    """
+    Restricts access to the application to a specific time window.
+    Allows access between 9:00 AM and 6:00 PM (18:00).
+    """
 
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        start_time = time(9, 0)
+        end_time = time(18, 0)
+        current_time = timezone.now().time()
+
+        if not (start_time <= current_time <= end_time):
+            # FIX: Added the missing closing parenthesis ')'
+            return HttpResponseForbidden("Access is restricted to between 9 AM and 6 PM.")
+
+        response = self.get_response(request)
         return response
