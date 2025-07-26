@@ -111,3 +111,28 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+class RolepermissionMiddleware:
+    """
+    Restricts access to specified paths based on user role.
+    Only allows users with 'is_staff' or 'is_superuser' flags to access '/admin/'.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # We only want to apply this check to paths starting with /admin/
+        if request.path.startswith('/admin/'):
+            # The AuthenticationMiddleware must run before this, so request.user exists.
+            if not request.user.is_authenticated:
+                # If the user is not logged in, they will be redirected by other logic.
+                # We can let the request pass to the next middleware.
+                return self.get_response(request)
+
+            # Check if the authenticated user is staff or a superuser.
+            if not (request.user.is_staff or request.user.is_superuser):
+                # If not, deny access.
+                return HttpResponseForbidden("You do not have permission to access this page.")
+
+        # For all other paths, or for authorized users, let the request proceed.
+        return self.get_response(request)
