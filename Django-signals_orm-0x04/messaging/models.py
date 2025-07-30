@@ -15,7 +15,8 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message from {self.sender.username} to {self.receiver.username} at {self.timestamp:%Y-%m-%d %H:%M}"
+        edited_status = "(edited)" if self.is_edited else ""
+        return f"Message from {self.sender.username} to {self.receiver.username} {edited_status}"
 
 # New model to store the history of message edits
 class MessageHistory(models.Model):
@@ -24,14 +25,16 @@ class MessageHistory(models.Model):
     """
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')
     old_content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    edited_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    edited_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         # Order history from newest to oldest
-        ordering = ['-timestamp']
+        ordering = ['-edited_at']
+        verbose_name_plural = "Message History"
 
     def __str__(self):
-        return f"Edit for message {self.message.id} at {self.timestamp:%Y-%m-%d %H:%M}"
+        return f"Edit by {self.edited_by.username} for message {self.message.id} at {self.edited_at:%Y-%m-%d %H:%M}"
 
 
 class Notification(models.Model):
