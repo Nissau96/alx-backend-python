@@ -119,7 +119,9 @@ class ORMTestCase(TestCase):
         """
         Test that the conversation view uses a minimal number of queries.
         """
+        # Log in a user to ensure request.user exists for the view's filter
+        self.client.login(username='orm_user1', password='password123')
 
-        with self.assertNumQueries(2):
-            response = self.client.get('/messaging/conversations/')  # Use your actual URL
+        with self.assertNumQueries(3):
+            response = self.client.get('/messaging/conversations/')
             self.assertEqual(response.status_code, 200)
