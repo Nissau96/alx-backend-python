@@ -3,6 +3,21 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class UnreadMessageManager(models.Manager):
+    """
+    Custom manager to retrieve unread messages for a user.
+    """
+    def get_unread_for_user(self, user):
+        """
+        Returns a queryset of unread messages for a given user,
+        optimized to fetch only essential fields.
+        """
+        return self.get_queryset() \
+            .filter(receiver=user, is_read=False) \
+            .select_related('sender') \
+            .only('id', 'content', 'timestamp', 'sender__username', 'sender__id')
+
 class Message(models.Model):
     """
     Represents a message sent from one user to another.
@@ -18,7 +33,11 @@ class Message(models.Model):
     )
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
     is_edited = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    unread = UnreadMessageManager()
 
     def __str__(self):
         edited_status = "(edited)" if self.is_edited else ""
@@ -56,3 +75,4 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} about message from {self.message.sender.username}"
+

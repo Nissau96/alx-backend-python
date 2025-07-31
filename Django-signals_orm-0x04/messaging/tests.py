@@ -125,3 +125,32 @@ class ORMTestCase(TestCase):
         with self.assertNumQueries(3):
             response = self.client.get('/messaging/conversations/')
             self.assertEqual(response.status_code, 200)
+
+
+class ManagerTestCase(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='manager_user1', password='password123')
+        self.user2 = User.objects.create_user(username='manager_user2', password='password123')
+
+        # user1 has one unread and one read message
+        Message.objects.create(sender=self.user2, receiver=self.user1, content="Unread message", is_read=False)
+        Message.objects.create(sender=self.user2, receiver=self.user1, content="Read message", is_read=True)
+        # user2 has one unread message
+        Message.objects.create(sender=self.user1, receiver=self.user2, content="Another unread message", is_read=False)
+
+    def test_unread_manager_returns_correct_messages(self):
+        """
+        Test that the UnreadMessageManager returns only unread messages for a user.
+        """
+        # Get unread messages for user1
+        unread_for_user1 = Message.unread.get_unread_for_user(self.user1)
+
+        # Check counts
+        self.assertEqual(unread_for_user1.count(), 1)
+        self.assertEqual(Message.objects.filter(receiver=self.user1, is_read=True).count(), 1)
+
+        # Check content
+        self.assertEqual(unread_for_user1.first().content, "Unread message")
+
+        # Check that it doesn't return messages for other users
+        self.assertNotIn("Another unread message", [m.content for m in unread_for_user1])
