@@ -2,21 +2,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-
-
-class UnreadMessageManager(models.Manager):
-    """
-    Custom manager to retrieve unread messages for a user.
-    """
-    def get_unread_for_user(self, user):
-        """
-        Returns a queryset of unread messages for a given user,
-        optimized to fetch only essential fields.
-        """
-        return self.get_queryset() \
-            .filter(receiver=user, is_read=False) \
-            .select_related('sender') \
-            .only('id', 'content', 'timestamp', 'sender__username', 'sender__id')
+from .managers import UnreadMessageManager
 
 class Message(models.Model):
     """

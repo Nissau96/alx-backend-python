@@ -55,7 +55,8 @@ def unread_messages_view(request):
     Displays a list of unread messages for the logged-in user.
     """
     # Use our new custom manager!
-    unread_list = Message.unread.get_unread_for_user(request.user)
+    unread_list = Message.unread.unread_for_user(request.user) \
+        .only('id', 'content', 'timestamp', 'sender__username', 'sender__id')
 
     context = {
         'unread_messages': unread_list
