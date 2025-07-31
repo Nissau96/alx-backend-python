@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversations</title>
+</head>
+<body>
+    <h1>All Conversations</h1>
+    {% for message in messages %}
+        {% include "messaging/_message_thread.html" with message=message %}
+        <hr>
+    {% endfor %}
+</body>
+</html>

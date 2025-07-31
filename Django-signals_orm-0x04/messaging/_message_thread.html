@@ -1,0 +1,11 @@
+<div style="margin-left: {{ depth|default:0 }}px; border-left: 2px solid #ccc; padding-left: 15px; margin-top: 10px;">
+    <p>
+        <strong>From: {{ message.sender.username }}</strong> | <strong>To: {{ message.receiver.username }}</strong>
+        <small>at {{ message.timestamp }} {% if message.is_edited %}(edited){% endif %}</small>
+    </p>
+    <p>{{ message.content }}</p>
+
+    {% for reply in message.threaded_replies %}
+        {% include "messaging/_message_thread.html" with message=reply depth=40 %}
+    {% endfor %}
+</div>

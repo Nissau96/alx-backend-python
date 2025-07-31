@@ -25,4 +25,5 @@ urlpatterns = [
     path('messaging/', include('messaging.urls')),
     path('delete-account/', views.delete_user, name='delete_user'),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('conversations/', views.conversation_view, name='conversation_view'),
 ]

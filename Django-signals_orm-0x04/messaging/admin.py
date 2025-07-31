@@ -15,6 +15,12 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ('timestamp', 'sender', 'receiver', 'is_edited')
     inlines = [MessageHistoryInline]
 
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'sender', 'receiver', 'parent_message', 'is_edited', 'timestamp') # Added parent_message
+    list_filter = ('timestamp', 'sender', 'receiver', 'is_edited')
+    inlines = [MessageHistoryInline]
+
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'message', 'is_read', 'timestamp')

@@ -9,13 +9,21 @@ class Message(models.Model):
     """
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    parent_message = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_edited = models.BooleanField(default=False)
-    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         edited_status = "(edited)" if self.is_edited else ""
+        if self.parent_message:
+            return f"Reply from {self.sender.username} to message {self.parent_message.id} {edited_status}"
         return f"Message from {self.sender.username} to {self.receiver.username} {edited_status}"
 
 # New model to store the history of message edits

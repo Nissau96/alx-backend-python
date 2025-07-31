@@ -101,3 +101,25 @@ class SignalsTestCase(TestCase):
         self.assertFalse(Message.objects.filter(sender_id=user_id).exists())
         self.assertFalse(Message.objects.filter(receiver_id=user_id).exists())
         self.assertFalse(Notification.objects.filter(user_id=user_id).exists())
+
+
+class ORMTestCase(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='orm_user1', password='password123')
+        self.user2 = User.objects.create_user(username='orm_user2', password='password123')
+
+        # Create a conversation thread
+        self.msg1 = Message.objects.create(sender=self.user1, receiver=self.user2, content="Main message")
+        self.reply1 = Message.objects.create(sender=self.user2, receiver=self.user1, content="Reply 1",
+                                             parent_message=self.msg1)
+        self.reply2 = Message.objects.create(sender=self.user1, receiver=self.user2, content="Reply to reply 1",
+                                             parent_message=self.reply1)
+
+    def test_threaded_view_query_optimization(self):
+        """
+        Test that the conversation view uses a minimal number of queries.
+        """
+
+        with self.assertNumQueries(2):
+            response = self.client.get('/messaging/conversations/')  # Use your actual URL
+            self.assertEqual(response.status_code, 200)
