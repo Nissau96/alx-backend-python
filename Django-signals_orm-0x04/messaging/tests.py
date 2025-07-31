@@ -77,3 +77,27 @@ class SignalsTestCase(TestCase):
         # 4. Save again without changes, ensure no new history is created
         self.message.save()
         self.assertEqual(MessageHistory.objects.count(), 1)
+
+    def test_user_data_deleted_on_user_delete(self):
+        """
+        Test that all user-related data is deleted when a user is deleted.
+        """
+        # user1 and user2 are created in setUp
+        user_to_delete = self.user1
+        user_id = user_to_delete.id
+
+        # Create some data for the user
+        Message.objects.create(sender=user_to_delete, receiver=self.user2, content="A message")
+        self.assertTrue(Message.objects.filter(sender_id=user_id).exists())
+        self.assertTrue(Notification.objects.filter(message__sender_id=user_id).exists())
+
+        # Delete the user
+        user_to_delete.delete()
+
+        # Check that the user is gone
+        self.assertFalse(User.objects.filter(id=user_id).exists())
+
+        # Check that all related data is gone
+        self.assertFalse(Message.objects.filter(sender_id=user_id).exists())
+        self.assertFalse(Message.objects.filter(receiver_id=user_id).exists())
+        self.assertFalse(Notification.objects.filter(user_id=user_id).exists())

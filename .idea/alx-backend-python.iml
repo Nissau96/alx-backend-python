@@ -4,7 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/messaging_app/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.13 virtualenv at D:\Coding Workspace\ALX_PBE\alx-backend-python\Django-Middleware-0x03\venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 virtualenv at E:\Coding Workspace\ALX\alx-backend-python\Django-signals_orm-0x04\venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

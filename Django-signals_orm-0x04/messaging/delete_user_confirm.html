@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Account Deletion</title>
+</head>
+<body>
+    <h1>Are you sure?</h1>
+    <p>Warning: Deleting your account is permanent. All of your messages and notifications will be removed.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="background-color: red; color: white;">Yes, Delete My Account</button>
+        <a href="/">Cancel</a>
+    </form>
+</body>
+</html>
