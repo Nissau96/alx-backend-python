@@ -3,7 +3,7 @@
 from django.db import models
 from django.db.models import Q
 
-class UnreadMessageManager(models.Manager):
+class UnreadMessagesManager(models.Manager):
     """
     Custom manager to retrieve unread messages for a user.
     """

@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-from .managers import UnreadMessageManager
+from .managers import UnreadMessagesManager
 
 class Message(models.Model):
     """
@@ -23,7 +23,7 @@ class Message(models.Model):
     is_edited = models.BooleanField(default=False)
 
     objects = models.Manager()
-    unread = UnreadMessageManager()
+    unread = UnreadMessagesManager()
 
     def __str__(self):
         edited_status = "(edited)" if self.is_edited else ""
