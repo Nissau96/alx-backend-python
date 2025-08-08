@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # 7. Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 8000/tcp
 
 # 8. Define the command to run your app
 # We use 0.0.0.0 to make the server accessible from outside the container
