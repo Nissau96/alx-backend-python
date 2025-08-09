@@ -13,6 +13,8 @@ services:
     environment:
       - MYSQL_DATABASE=${MYSQL_DB}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3307:3306"
     networks:
@@ -27,6 +29,7 @@ services:
     build: .
     container_name: django_web
     restart: unless-stopped
+    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - .:/app
     ports:
