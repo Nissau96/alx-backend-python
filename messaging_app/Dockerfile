@@ -17,17 +17,20 @@ RUN apt-get update \
        default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. Copy the requirements file into the container at /app
+# 5. Upgrade pip to latest version
+RUN pip install --upgrade pip
+
+# 6. Copy the requirements file into the container at /app
 COPY requirements.txt /app/
 
-# 6. Install any needed packages specified in requirements.txt
+# 7. Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 7. Copy the rest of the application's code into the container at /app
+# 8. Copy the rest of the application's code into the container at /app
 COPY . /app/
 
-# 8. Expose the port the app runs on
-EXPOSE 8000/tcp
+# 9. Expose the port the app runs on
+EXPOSE 8000
 
-# 9. Define the command to run your app
+# 10. Define the command to run your app
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
