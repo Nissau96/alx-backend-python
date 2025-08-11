@@ -1,0 +1,52 @@
+# Manages the lifecycle of our application Pods.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # A unique name for our Deployment resource
+  name: messaging-app-deployment
+spec:
+  # The desired number of running application instances (Pods)
+  replicas: 2 
+  selector:
+    # This label selector links the Deployment to the Pods it manages.
+    # It must match the labels in the Pod template below.
+    matchLabels:
+      app: messaging-app
+  template:
+    metadata:
+      # These labels are applied to each Pod created by this Deployment.
+      labels:
+        app: messaging-app
+    spec:
+      containers:
+      - name: django-messaging-app
+        # This is your Docker image.
+        image: messaging_app-web
+        # This policy tells Kubernetes to use the local image if present
+        
+        imagePullPolicy: IfNotPresent
+        ports:
+          
+        - containerPort: 8000
+
+
+
+# ----------------- SERVICE -------------------
+# Creates a stable network endpoint to access our app within the cluster.
+apiVersion: v1
+kind: Service
+metadata:
+  # A unique name for our Service resource
+  name: messaging-app-service
+spec:
+  # ClusterIP makes the service reachable only from within the Kubernetes cluster.
+  type: ClusterIP 
+  selector:
+    # This links the Service to any Pod with the 'app: messaging-app' label.
+    app: messaging-app 
+  ports:
+    - protocol: TCP
+      # The port other services inside the cluster will use to talk to your app.
+      port: 8000       
+      # The port on the Pods to forward the traffic to (matches containerPort).
+      targetPort: 8000
