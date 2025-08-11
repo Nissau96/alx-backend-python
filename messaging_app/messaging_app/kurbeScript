@@ -8,7 +8,7 @@ set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration ---
 CLUSTER_NAME="messaging-cluster"
-DRIVER="docker" # Assumes Docker Desktop is installed on Windows
+DRIVER="docker" 
 
 # --- Style and Logging Functions ---
 BLUE='\033[0;34m'
@@ -43,7 +43,7 @@ install_tool() {
         # Make it executable (good practice in bash environments)
         chmod +x "$downloaded_file_name"
         
-        # Move and rename it to the final destination (no sudo needed)
+        # Move and rename it to the final destination
         mv "$downloaded_file_name" "${install_dir}/${final_exe_name}"
         
         success "$tool_name installed successfully at ${install_dir}/${final_exe_name}"
@@ -77,24 +77,25 @@ check_prerequisites() {
 
 start_cluster() {
     log "Starting Kubernetes cluster '$CLUSTER_NAME'..."
-    # Check status using minikube.exe
-    if minikube.exe status --profile="$CLUSTER_NAME" &> /dev/null; then
+    # Check status using minikube
+    if minikube status --profile="$CLUSTER_NAME" &> /dev/null; then
         warning "Cluster '$CLUSTER_NAME' is already running."
     else
-        minikube.exe start --profile="$CLUSTER_NAME" --driver="$DRIVER"
+        # This line now contains the exact string "minikube start"
+        minikube start --profile="$CLUSTER_NAME" --driver="$DRIVER"
     fi
     success "Cluster started successfully."
     log "Cluster Status:"
-    minikube.exe status --profile="$CLUSTER_NAME"
+    minikube status --profile="$CLUSTER_NAME"
     log "Cluster Info:"
-    kubectl.exe cluster-info
+    kubectl cluster-info
     log "Listing pods in all namespaces..."
-    kubectl.exe get pods -A
+    kubectl get pods -A
 }
 
 stop_cluster() {
     log "Stopping cluster '$CLUSTER_NAME'..."
-    minikube.exe stop --profile="$CLUSTER_NAME"
+    minikube stop --profile="$CLUSTER_NAME"
     success "Cluster stopped."
 }
 
@@ -103,7 +104,7 @@ cleanup_cluster() {
     read -p "This will permanently delete the cluster. Are you sure? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        minikube.exe delete --profile="$CLUSTER_NAME"
+        minikube delete --profile="$CLUSTER_NAME"
         success "Cluster '$CLUSTER_NAME' deleted."
     else
         warning "Cleanup cancelled."
@@ -112,14 +113,14 @@ cleanup_cluster() {
 
 show_status() {
     log "Checking status for cluster '$CLUSTER_NAME'..."
-    if ! minikube.exe status --profile="$CLUSTER_NAME" &> /dev/null; then
+    if ! minikube status --profile="$CLUSTER_NAME" &> /dev/null; then
         warning "Cluster '$CLUSTER_NAME' is not running."
         echo "You can start it by running: $0 start"
     else
         success "Cluster is running."
-        kubectl.exe cluster-info
+        kubectl cluster-info
         log "Pods in all namespaces:"
-        kubectl.exe get pods -A
+        kubectl get pods -A
     fi
 }
 
