@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: messaging-app-ingress
+  annotations:
+    # This annotation is crucial. It tells the Nginx controller to
+    # strip the '/messaging' path from the request before forwarding it
+    # to your application. Your Django app expects requests at '/', not '/messaging'.
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /messaging
+        pathType: Prefix
+        backend:
+          service:
+            # This must match the name of the Service we created in Task 1.
+            name: messaging-app-service
+            port:
+              # This must match the port defined in that Service.
+              number: 8000
