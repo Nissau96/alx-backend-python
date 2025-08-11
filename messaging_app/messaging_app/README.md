@@ -112,3 +112,21 @@ minikube ip
 #    Open this URL in your web browser:
 #    http://<YOUR-MINIKUBE-IP>/messaging
 ```
+
+---
+
+## Task 4: Blue-Green Deployment for Zero Downtime
+
+This task implements a blue-green deployment strategy. This allows you to deploy a new version of the application without any user-facing downtime by switching traffic instantly after the new version is confirmed to be healthy.
+
+### Running the Orchestration Script
+
+The `kubctl-0x02` script automates the entire process. Before running, ensure the old service is deleted with `kubectl delete service messaging-app-service`.
+
+```bash
+# Make the script executable (only need to do this once)
+chmod +x messaging_app/kubctl-0x02
+
+# Run the script
+./messaging_app/kubctl-0x02
+```
