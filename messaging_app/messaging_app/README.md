@@ -81,3 +81,34 @@ chmod +x messaging_app/kubctl-0x01
 # Run the script
 ./messaging_app/kubctl-0x01
 ```
+
+---
+
+## Task 3: Exposing the Application with Ingress
+
+This task explains how to expose the application to external traffic using a Kubernetes Ingress.
+
+### 1. Enable the Ingress Addon
+First, enable the Nginx Ingress controller addon in your Minikube cluster. This only needs to be done once.
+
+```bash
+minikube addons enable ingress
+```
+### 2. Apply the Ingress Configuration
+Apply the `ingress.yaml` file to create the routing rules.
+
+```bash
+kubectl apply -f messaging_app/ingress.yaml
+```
+
+### 3. Access the Application
+Find your cluster's IP address and construct the URL to access your application.
+
+```bash
+# 1. Get the cluster IP address
+minikube ip
+
+# 2. Use the output from the above command to build your URL.
+#    Open this URL in your web browser:
+#    http://<YOUR-MINIKUBE-IP>/messaging
+```
