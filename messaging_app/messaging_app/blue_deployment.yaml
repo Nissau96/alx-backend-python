@@ -12,11 +12,13 @@ spec:
     # It must match the labels in the Pod template below.
     matchLabels:
       app: messaging-app
+      version: blue
   template:
     metadata:
       # These labels are applied to each Pod created by this Deployment.
       labels:
         app: messaging-app
+        version: blue
     spec:
       containers:
       - name: django-messaging-app
