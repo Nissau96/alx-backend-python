@@ -56,3 +56,28 @@ kubectl get pods
 # (replace <pod-name> with a real pod name from the command above)
 kubectl logs <pod-name>
 ```
+---
+
+## Task 2: Scaling the Application
+
+This task demonstrates how to scale the application and perform a simple load test to observe its behavior under load.
+
+### Prerequisites
+You must install the `wrk` HTTP benchmarking tool.
+- **On Debian/Ubuntu:** `sudo apt-get update && sudo apt-get install wrk`
+- **On macOS (with Homebrew):** `brew install wrk`
+
+### Running the Script
+The `kubctl-0x01` script automates the entire process. It will:
+1.  Enable the Kubernetes Metrics Server.
+2.  Scale the deployment to 3 replicas.
+3.  Run a 30-second load test.
+4.  Display the resource usage of the pods and node.
+
+```bash
+# Make the script executable (only need to do this once)
+chmod +x messaging_app/kubctl-0x01
+
+# Run the script
+./messaging_app/kubctl-0x01
+```
