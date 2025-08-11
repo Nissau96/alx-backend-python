@@ -26,3 +26,33 @@ chmod +x messaging_app/kurbeScript
 # Run the script
 ./messaging_app/kurbeScript
 ```
+
+## Task 1: Deploying the Application
+
+This section describes how to deploy the containerized Django application to the Kubernetes cluster.
+
+### 1. Load the Docker Image
+Before deploying, you must load your locally built Docker image into the Minikube cluster's internal registry.
+
+```bash
+minikube image load messaging_app-web
+```
+
+### 2. Apply the Configuration
+Deploy the application using the `deployment.yaml` file. This will create the Deployment and Service objects in Kubernetes.
+
+```bash
+kubectl apply -f messaging_app/deployment.yaml
+```
+
+### 3. Verify the Deployment
+Check that the application Pods are running correctly.
+
+```bash
+# List the running pods
+kubectl get pods
+
+# Check the logs of one of the pods to ensure the app started
+# (replace <pod-name> with a real pod name from the command above)
+kubectl logs <pod-name>
+```
