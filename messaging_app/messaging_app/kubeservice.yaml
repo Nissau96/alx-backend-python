@@ -1,0 +1,15 @@
+# kubeservice.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-app-service
+spec:
+  type: ClusterIP
+  selector:
+    # Initially points to the blue version
+    app: messaging-app
+    version: blue
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
