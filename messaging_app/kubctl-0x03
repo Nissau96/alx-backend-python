@@ -1,0 +1,81 @@
+#!/bin/bash
+# A script to trigger and monitor a rolling update while testing for downtime.
+
+# --- Style and Logging Functions ---
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+log() { echo -e "\n${BLUE}[INFO] $1${NC}"; }
+success() { echo -e "${GREEN}✓ $1${NC}"; }
+warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
+error() { echo -e "${RED}✗ $1${NC}"; exit 1; }
+
+# --- Main Logic ---
+main() {
+    local deployment_name="messaging-app-blue"
+    local log_file="/tmp/rolling_update_test.log"
+    
+    # 1. Get the application URL
+    log "Getting application URL via Ingress..."
+    local minikube_ip=$(minikube ip)
+    if [ -z "$minikube_ip" ]; then
+        error "Could not get Minikube IP address."
+    fi
+    local app_url="http://${minikube_ip}/messaging"
+    success "Application URL is: $app_url"
+
+    # 2. Start testing for downtime in the background
+    log "Starting continuous availability test in the background..."
+    echo "Timestamp,HTTP_Status" > "$log_file" # Log file header
+    
+    # This loop will run in the background, hitting the URL every second
+    while true; do
+        http_code=$(curl -s -o /dev/null -w "%{http_code}" "$app_url")
+        echo "$(date +%T),$http_code" >> "$log_file"
+        sleep 1
+    done &
+    local test_pid=$! # Save the Process ID (PID) of the background loop
+    success "Availability test running in background (PID: $test_pid)."
+
+    # 3. Apply the updated deployment to trigger the rolling update
+    log "Applying updated 'blue_deployment.yaml' to trigger the rolling update..."
+    kubectl apply -f blue_deployment.yaml
+
+    # 4. Monitor the update progress
+    log "Monitoring rolling update status... (This may take a minute)"
+    kubectl rollout status deployment/"$deployment_name"
+    success "Rolling update complete."
+
+    # 5. Stop the background test
+    log "Stopping the background availability test..."
+    kill "$test_pid"
+    
+    # 6. Analyze test results
+    log "Analyzing test results from $log_file..."
+    local total_requests=$(wc -l < "$log_file")
+    # Subtract 1 for the header line
+    total_requests=$((total_requests - 1))
+    local successful_requests=$(grep ",200" "$log_file" | wc -l)
+    local failed_requests=$((total_requests - successful_requests))
+
+    echo "Total Requests: $total_requests"
+    echo "Successful (200 OK): $successful_requests"
+    echo "Failed (Not 200 OK): $failed_requests"
+    if [ "$failed_requests" -eq 0 ]; then
+        success "Zero downtime detected!"
+    else
+        warning "Some requests failed during the update. Downtime may have occurred."
+    fi
+
+    # 7. Verify the new pod versions
+    log "Verifying that all pods are running the new image version (2.0)..."
+    kubectl get pods -l app=messaging-app,version=blue
+    # This command lists the images of all running pods for this deployment
+    kubectl get pods -l app=messaging-app,version=blue -o jsonpath='{range .items[*]}{.spec.containers[0].image}{"\n"}{end}' | uniq
+    success "Verification complete."
+}
+
+main
