@@ -6,7 +6,6 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    # Initially points to the blue version
     app: messaging-app
     version: blue
   ports:

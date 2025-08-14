@@ -34,12 +34,10 @@ main() {
 
     # Phase 3: Smoke Test Green Version
     log "Performing smoke test by checking logs of the Green pods..."
-    # Get the name of one of the green pods
     local green_pod=$(kubectl get pods -l app=messaging-app,version=green -o jsonpath='{.items[0].metadata.name}')
     if [ -z "$green_pod" ]; then
         error "Could not find any Green pods to test."
     fi
-    # Display the last 10 lines of logs
     kubectl logs "$green_pod" --tail=10
     success "Smoke test complete. Assume logs are okay."
 
@@ -52,17 +50,12 @@ main() {
     fi
 
     log "Switching live traffic to the Green version..."
-    # We patch the service to change its selector from 'version: blue' to 'version: green'
     kubectl patch service messaging-app-service -p '{"spec":{"selector":{"version":"green"}}}'
     success "Traffic has been switched to the Green version!"
     
     log "Verifying service selector has been updated..."
     kubectl get service messaging-app-service -o wide
     success "Deployment complete! Your Ingress is now serving traffic from the green deployment."
-
-    # Optional Cleanup
-    # warning "You can now safely delete the old Blue deployment by running:"
-    # echo "kubectl delete deployment messaging-app-blue"
 }
 
 main
