@@ -1,0 +1,61 @@
+#!/bin/bash
+# A script to orchestrate a Blue-Green deployment.
+
+# --- Style and Logging Functions ---
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+log() { echo -e "\n${BLUE}[INFO] $1${NC}"; }
+success() { echo -e "${GREEN}✓ $1${NC}"; }
+warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
+error() { echo -e "${RED}✗ $1${NC}"; exit 1; }
+
+# --- Main Logic ---
+main() {
+    # Phase 1: Deploy Blue Version and Service
+    log "Deploying Blue version and the main service..."
+    kubectl apply -f messaging_app/blue_deployment.yaml
+    kubectl apply -f messaging_app/kubeservice.yaml
+    log "Waiting for Blue deployment to be ready..."
+    kubectl rollout status deployment/messaging-app-blue
+    success "Blue version is live and service is pointing to it."
+    kubectl get service messaging-app-service -o wide
+
+    # Phase 2: Deploy Green Version
+    log "Deploying Green (new) version..."
+    kubectl apply -f messaging_app/green_deployment.yaml
+    log "Waiting for Green deployment to be ready..."
+    kubectl rollout status deployment/messaging-app-green
+    success "Green version is deployed and running, but not receiving live traffic."
+    kubectl get pods -l app=messaging-app
+
+    # Phase 3: Smoke Test Green Version
+    log "Performing smoke test by checking logs of the Green pods..."
+    local green_pod=$(kubectl get pods -l app=messaging-app,version=green -o jsonpath='{.items[0].metadata.name}')
+    if [ -z "$green_pod" ]; then
+        error "Could not find any Green pods to test."
+    fi
+    kubectl logs "$green_pod" --tail=10
+    success "Smoke test complete. Assume logs are okay."
+
+    # Phase 4: The Traffic Switch
+    read -p "Green version looks okay. Proceed with switching live traffic to Green? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        warning "Traffic switch aborted by user."
+        exit 0
+    fi
+
+    log "Switching live traffic to the Green version..."
+    kubectl patch service messaging-app-service -p '{"spec":{"selector":{"version":"green"}}}'
+    success "Traffic has been switched to the Green version!"
+    
+    log "Verifying service selector has been updated..."
+    kubectl get service messaging-app-service -o wide
+    success "Deployment complete! Your Ingress is now serving traffic from the green deployment."
+}
+
+main
