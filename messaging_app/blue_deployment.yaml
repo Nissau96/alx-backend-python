@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: messaging-app-blue
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: messaging-app
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: django-messaging-app
-        image: messaging_app-web
+        image: messaging_app-web:2.0 
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
