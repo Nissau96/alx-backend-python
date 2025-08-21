@@ -1,8 +1,8 @@
 pipeline {
     agent any
     tools {
-        // Define Python tool managed by ShiningPanda
-        PythonInstallation 'Python-3.12' 
+        // Use 'python' as the key, matching the ShiningPanda configuration
+        python 'Python-3.12'  // Must match the name in Global Tool Configuration
     }
     environment {
         PYTHON_VERSION = '3.12'
@@ -19,7 +19,7 @@ pipeline {
             steps {
                 dir('messaging_app') {
                     sh '''
-                        python3 -m venv venv
+                        ${TOOL_PYTHON} -m venv venv
                         . venv/bin/activate
                         pip install --upgrade pip
                     '''
