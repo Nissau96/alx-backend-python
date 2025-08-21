@@ -1,134 +1,61 @@
 pipeline {
     agent any
-    
-    environment {
-        PROJECT_DIR = 'messaging_app'
+    tools {
+        PythonInstallation 'Python-3.12'  // Must match the name in Global Tool Configuration
     }
-    
+    environment {
+        PYTHON_VERSION = '3.12'
+    }
     stages {
         stage('Checkout') {
             steps {
-                echo "🔄 Checking out source code from GitHub..."
-                checkout scm
-                echo "✅ Source code checked out successfully"
+                git url: 'https://github.com/Nissau96/alx-backend-python.git',
+                    branch: 'main',  // Explicitly specify the branch
+                    credentialsId: 'github-creds'  // Use the configured GitHub credentials
             }
         }
-        
-        stage('Setup Python Environment') {
+        stage('Set Up Virtual Environment') {
             steps {
-                dir("${PROJECT_DIR}") {
-                    echo "🐍 Setting up Python environment..."
+                dir('messaging_app') {
                     sh '''
-                        python3 -m venv venv
-                        source venv/bin/activate
-                        pip install --upgrade pip
-                        pip install pytest pytest-cov pytest-html coverage flake8
-                        
-                        # Install project dependencies if requirements.txt exists
-                        if [ -f "requirements.txt" ]; then
-                            pip install -r requirements.txt
-                        fi
+                        ${TOOL_PYTHON} -m venv venv
+                        . venv/bin/activate
+                        pip3 install --upgrade pip
                     '''
-                    echo "✅ Python environment setup complete"
                 }
             }
         }
-        
+        stage('Install Dependencies') {
+            steps {
+                dir('messaging_app') {
+                    sh '''
+                        . venv/bin/activate
+                        pip3 install -r requirements.txt  // Install dependencies from requirements.txt
+                    '''
+                }
+            }
+        }
         stage('Run Tests') {
             steps {
-                dir("${PROJECT_DIR}") {
-                    echo "🧪 Running tests with pytest..."
+                dir('messaging_app') {
                     sh '''
-                        source venv/bin/activate
-                        
-                        # Create tests directory if it doesn't exist
-                        mkdir -p tests
-                        
-                        # Create a basic test if none exist
-                        if [ ! -f "tests/test_*.py" ] && [ ! -f "test_*.py" ]; then
-                            echo "Creating basic test file..."
-                            cat > tests/test_basic.py << 'EOF'
-import pytest
-
-def test_basic_functionality():
-    """Basic test to ensure testing framework works"""
-    assert True
-
-def test_environment_setup():
-    """Test that Python environment is working"""
-    import sys
-    assert sys.version_info >= (3, 6)
-    
-def test_messaging_app_basic():
-    """Basic messaging app test"""
-    message = "Hello, World!"
-    assert len(message) > 0
-    assert isinstance(message, str)
-EOF
-                        fi
-                        
-                        # Run pytest with coverage and reports
-                        pytest tests/ -v \
-                            --cov=. \
-                            --cov-report=html:htmlcov \
-                            --cov-report=xml:coverage.xml \
-                            --html=test-report.html \
-                            --self-contained-html \
-                            --junitxml=test-results.xml
+                        . venv/bin/activate
+                        pytest --junitxml=test_report.xml  // Run tests and generate report
                     '''
-                    echo "✅ Tests completed successfully"
-                }
-            }
-        }
-        
-        stage('Generate Reports') {
-            steps {
-                dir("${PROJECT_DIR}") {
-                    echo "📊 Publishing test reports..."
-                    
-                    // Publish JUnit test results
-                    junit 'test-results.xml'
-                    
-                    // Publish HTML test report
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: '.',
-                        reportFiles: 'test-report.html',
-                        reportName: 'Test Report'
-                    ])
-                    
-                    // Publish coverage report
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'htmlcov',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report'
-                    ])
-                    
-                    echo "✅ Reports published successfully"
                 }
             }
         }
     }
-    
     post {
         always {
-            dir("${PROJECT_DIR}") {
-                echo "🧹 Cleaning up..."
-                sh 'rm -rf venv || true'
-            }
+            junit 'messaging_app/test_report.xml'  // Publish the test report
+            cleanWs()
         }
-        
         success {
-            echo "🎉 Pipeline completed successfully!"
+            echo 'Tests passed successfully!'
         }
-        
         failure {
-            echo "❌ Pipeline failed. Check logs for details."
+            echo 'Tests failed. Check the report.'
         }
     }
 }
