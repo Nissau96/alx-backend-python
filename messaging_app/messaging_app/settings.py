@@ -94,6 +94,16 @@ DATABASES = {
     }
 }
 
+if os.getenv('GITHUB_ACTIONS') == 'true':
+    DATABASES['default'] = {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.getenv('DB_NAME', 'test_db'),
+        'USER': os.getenv('DB_USER', 'test_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'test_password'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
