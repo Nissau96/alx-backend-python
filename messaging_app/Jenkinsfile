@@ -1,31 +1,24 @@
 pipeline {
-    agent any  // Run on any available agent
-
+    agent any
     environment {
-        // Define Python version; ShiningPanda will handle installation if needed
-        PYTHON_VERSION = '3.13.3'  // Matches the project's Python env
+        PYTHON_VERSION = '3.12'
     }
-
     stages {
         stage('Checkout') {
             steps {
-                // Pull from GitHub using credentials
-                git url: 'https://github.com/Nissau96/alx-backend-python.git', 
-                    branch: 'main',  // Adjust to your branch if needed
+                git url: 'https://github.com/Nissau96/alx-backend-python.git',
+                    branch: 'main',
                     credentialsId: 'github-creds'
             }
         }
-
         stage('Set Up Virtual Environment') {
             steps {
                 dir('messaging_app') {
-                    // Use ShiningPanda to create and activate virtualenv
                     sh "python -m venv venv"
                     sh ". venv/bin/activate && pip install --upgrade pip"
                 }
             }
         }
-
         stage('Install Dependencies') {
             steps {
                 dir('messaging_app') {
@@ -33,22 +26,17 @@ pipeline {
                 }
             }
         }
-
         stage('Run Tests') {
             steps {
                 dir('messaging_app') {
-                    // Run pytest with JUnit XML report for Jenkins integration
                     sh ". venv/bin/activate && pytest --junitxml=test_report.xml"
                 }
             }
         }
     }
-
     post {
         always {
-            // Archive the test report regardless of success/failure
             junit 'messaging_app/test_report.xml'
-            // Clean up workspace to avoid bloat (industry best practice)
             cleanWs()
         }
         success {
