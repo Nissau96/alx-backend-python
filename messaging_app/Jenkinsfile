@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         // Define Python tool managed by ShiningPanda
-        python 'Python-3.12'  
+        PythonInstallation 'Python-3.12' 
     }
     environment {
         PYTHON_VERSION = '3.12'
@@ -18,7 +18,6 @@ pipeline {
         stage('Set Up Virtual Environment') {
             steps {
                 dir('messaging_app') {
-                    
                     sh '''
                         python3 -m venv venv
                         . venv/bin/activate
