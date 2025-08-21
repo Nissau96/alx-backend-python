@@ -1,0 +1,67 @@
+# Name for the GitHub Actions workflow
+name: Django CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Services are Docker containers that run alongside your job
+    services:
+      # Label for the service container
+      mysql:
+        # The Docker image to use
+        image: mysql:8.0
+        # Environment variables to set in the container
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
+        # Map port 3306 on the service to the runner
+        ports:
+          - 3306:3306
+        # Health check to ensure MySQL is ready before starting the tests
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Step 1: Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Sets up a Python environment for use in actions
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Step 3: Installs project dependencies from requirements.txt
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r messaging_app/requirements.txt
+
+      # Step 4: Runs the Django test suite
+      - name: Run Tests
+        # Use the environment variables to configure Django's database settings
+        env:
+          DB_ENGINE: django.db.backends.mysql
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_password
+          # The host is 127.0.0.1 because we mapped the port
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+        run: |
+          # Run tests from within the Django project directory
+          cd messaging_app && python manage.py test
