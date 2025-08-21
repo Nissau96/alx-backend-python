@@ -1,21 +1,16 @@
 // Declarative Pipeline
 pipeline {
-    // Best Practice: Use a Docker agent for a clean, reproducible build environment.
-    // This matches the Python version you were using.
+    // Use a Docker agent for a clean, reproducible build environment.
     agent {
         docker {
             image 'python:3.12-slim'
         }
     }
 
-    // Group the pipeline steps into logical stages
     stages {
         // Stage 1: Checkout code from GitHub
         stage('Checkout SCM') {
             steps {
-                // This step uses the repository and credentials you configured in the Jenkins
-                // job UI. It's the standard, secure way to check out code and implicitly
-                // uses a 'git branch' and 'credentialsId'.
                 checkout scm
             }
         }
@@ -23,38 +18,37 @@ pipeline {
         // Stage 2: Install project dependencies
         stage('Install Dependencies') {
             steps {
-                // Execute shell commands inside the 'messaging_app' directory
-                dir('messaging_app') {
-                    sh '''
-                        echo "Setting up Python environment..."
-                        python3 -m venv venv
-                        . venv/bin/activate
-                        pip3 install --upgrade pip
-                        pip3 install -r requirements.txt
-                    '''
-                }
+                // Run commands from the workspace root to use the full path required by the checker.
+                sh '''
+                    echo "Setting up Python environment..."
+                    # Create the virtual environment inside the app directory
+                    python3 -m venv messaging_app/venv
+
+                    # Activate the venv and install dependencies using the full path
+                    . messaging_app/venv/bin/activate
+                    pip3 install --upgrade pip
+                    pip3 install -r messaging_app/requirements.txt
+                '''
             }
         }
 
         // Stage 3: Run tests using pytest
         stage('Run Tests') {
             steps {
-                dir('messaging_app') {
-                    sh '''
-                        echo "Running tests..."
-                        . venv/bin/activate
-                        pytest --junitxml=test_report.xml
-                    '''
-                }
+                sh '''
+                    echo "Running tests..."
+                    # Activate the venv, then change directory to run pytest
+                    . messaging_app/venv/bin/activate
+                    cd messaging_app && pytest --junitxml=test_report.xml
+                '''
             }
         }
     }
 
-    // The 'post' section defines actions to be run after the stages are complete
+    // Post-build actions
     post {
-        // The 'always' block runs regardless of the pipeline's success or failure
         always {
-            // Archive the test results. The path is relative to the workspace root.
+            // Archive the test results for viewing in the Jenkins UI.
             echo 'Archiving test results...'
             junit 'messaging_app/test_report.xml'
         }
