@@ -11,6 +11,9 @@ pipeline {
         // Stage 1: Checkout code from GitHub
         stage('Checkout SCM') {
             steps {
+                // This step uses the repository and credentials you configured in the Jenkins
+                // job UI. It's the standard, secure way to check out code and implicitly
+                // uses a 'git branch' and 'credentialsId'.
                 checkout scm
             }
         }
