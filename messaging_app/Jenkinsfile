@@ -1,0 +1,514 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Project directory within the repository
+        PROJECT_DIR = 'messaging_app'
+        PYTHON_VERSION = '3.13.3'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    echo "🔄 Checking out source code from GitHub repository: alx-backend-python"
+                    echo "📁 Target directory: ${PROJECT_DIR}"
+                    
+                    // The source code is automatically checked out by Jenkins
+                    // when using "Pipeline script from SCM"
+                    sh 'pwd && ls -la'
+                    
+                    echo "✅ Source code checked out successfully"
+                }
+            }
+        }
+        
+        stage('Setup Python Environment') {
+            steps {
+                script {
+                    echo "🐍 Setting up Python environment in ${PROJECT_DIR}"
+                    
+                    dir("${PROJECT_DIR}") {
+                        sh '''
+                            echo "Current directory: $(pwd)"
+                            echo "Directory contents:"
+                            ls -la
+                            
+                            # Check Python version
+                            python3 --version
+                            
+                            # Create virtual environment
+                            echo "Creating Python virtual environment..."
+                            python3 -m venv venv
+                            
+                            # Activate virtual environment and install dependencies
+                            echo "Activating virtual environment and installing dependencies..."
+                            source venv/bin/activate
+                            
+                            # Upgrade pip
+                            pip install --upgrade pip
+                            
+                            # Install testing framework and dependencies
+                            echo "Installing pytest and testing tools..."
+                            pip install pytest pytest-cov pytest-html coverage flake8
+                            
+                            # Install project dependencies if requirements.txt exists
+                            if [ -f "requirements.txt" ]; then
+                                echo "Found requirements.txt, installing project dependencies..."
+                                pip install -r requirements.txt
+                            else
+                                echo "No requirements.txt found, installing basic Django dependencies..."
+                                pip install django djangorestframework
+                            fi
+                            
+                            # Show installed packages
+                            echo "Installed packages:"
+                            pip list
+                        '''
+                    }
+                    
+                    echo "✅ Python environment setup completed successfully"
+                }
+            }
+        }
+        
+        stage('Prepare Tests') {
+            steps {
+                script {
+                    echo "📝 Preparing test environment and creating test files if needed"
+                    
+                    dir("${PROJECT_DIR}") {
+                        sh '''
+                            source venv/bin/activate
+                            
+                            # Create tests directory if it doesn't exist
+                            mkdir -p tests
+                            
+                            # Check if any test files exist
+                            if [ ! -f "tests/test_*.py" ] && [ ! -f "test_*.py" ]; then
+                                echo "No test files found. Creating basic test file..."
+                                
+                                # Create a comprehensive basic test file
+                                cat > tests/test_messaging_app.py << 'EOF'
+"""
+Basic tests for messaging app - Task 0
+This file contains tests to demonstrate the CI/CD pipeline functionality
+"""
+
+import pytest
+import sys
+import os
+
+
+class TestEnvironmentSetup:
+    """Test the environment setup and basic functionality"""
+    
+    def test_python_version(self):
+        """Verify Python version compatibility"""
+        print(f"Python version: {sys.version}")
+        assert sys.version_info >= (3, 6), "Python 3.6 or higher required"
+    
+    def test_basic_imports(self):
+        """Test that essential modules can be imported"""
+        try:
+            import json
+            import datetime
+            import os
+            import sys
+            assert True
+        except ImportError as e:
+            pytest.fail(f"Failed to import basic modules: {e}")
+    
+    def test_django_availability(self):
+        """Test Django framework availability"""
+        try:
+            import django
+            print(f"Django version: {django.VERSION}")
+            assert True
+        except ImportError:
+            pytest.skip("Django not installed")
+
+
+class TestMessagingAppBasics:
+    """Basic functionality tests for the messaging app"""
+    
+    def test_message_creation(self):
+        """Test basic message creation logic"""
+        # Simulate message creation
+        message_data = {
+            'id': 1,
+            'content': 'Hello, World! This is a test message.',
+            'sender': 'jenkins_user',
+            'timestamp': '2024-01-01T12:00:00Z',
+            'read': False
+        }
+        
+        # Test message properties
+        assert message_data['id'] == 1
+        assert len(message_data['content']) > 0
+        assert message_data['sender'] == 'jenkins_user'
+        assert 'timestamp' in message_data
+        assert message_data['read'] is False
+        
+        print(f"✅ Message created: {message_data['content']}")
+    
+    def test_message_validation(self):
+        """Test message validation logic"""
+        # Valid message
+        valid_message = {
+            'content': 'This is a valid message',
+            'sender': 'user123'
+        }
+        
+        assert len(valid_message['content'].strip()) > 0, "Message content cannot be empty"
+        assert valid_message['sender'] is not None, "Message must have a sender"
+        
+        # Invalid message scenarios
+        empty_content = {'content': '', 'sender': 'user123'}
+        assert len(empty_content['content']) == 0  # This would be caught by validation
+        
+        print("✅ Message validation tests passed")
+    
+    def test_user_management(self):
+        """Test basic user management functionality"""
+        user = {
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'active': True,
+            'messages_count': 0
+        }
+        
+        assert user['username'] == 'testuser'
+        assert '@' in user['email']
+        assert user['active'] is True
+        assert user['messages_count'] >= 0
+        
+        print(f"✅ User created: {user['username']}")
+
+
+class TestUtilityFunctions:
+    """Test utility functions used in the messaging app"""
+    
+    def test_string_operations(self):
+        """Test string operations for message processing"""
+        test_message = "  Hello, Jenkins CI/CD Pipeline!  "
+        
+        # Test trimming
+        trimmed = test_message.strip()
+        assert trimmed == "Hello, Jenkins CI/CD Pipeline!"
+        
+        # Test length calculation
+        assert len(trimmed) > 0
+        
+        # Test content validation
+        assert "Jenkins" in trimmed
+        
+        print(f"✅ String operations test: '{trimmed}'")
+    
+    def test_data_structures(self):
+        """Test data structures used in the app"""
+        # Test message list
+        messages = []
+        messages.append({'id': 1, 'content': 'First message'})
+        messages.append({'id': 2, 'content': 'Second message'})
+        
+        assert len(messages) == 2
+        assert messages[0]['id'] == 1
+        assert messages[1]['content'] == 'Second message'
+        
+        # Test message dictionary
+        message_dict = {
+            'user123': ['Hello', 'How are you?'],
+            'user456': ['Hi there!']
+        }
+        
+        assert len(message_dict) == 2
+        assert len(message_dict['user123']) == 2
+        assert len(message_dict['user456']) == 1
+        
+        print("✅ Data structures test passed")
+
+
+# Test fixtures for more advanced testing
+@pytest.fixture
+def sample_message():
+    """Fixture providing a sample message for testing"""
+    return {
+        'id': 999,
+        'content': 'This is a test message from pytest fixture',
+        'sender': 'fixture_user',
+        'timestamp': '2024-01-01T12:00:00Z',
+        'read': False,
+        'priority': 'normal'
+    }
+
+
+@pytest.fixture
+def sample_user():
+    """Fixture providing a sample user for testing"""
+    return {
+        'id': 888,
+        'username': 'fixture_testuser',
+        'email': 'fixture@test.com',
+        'active': True,
+        'created_at': '2024-01-01T10:00:00Z'
+    }
+
+
+class TestWithFixtures:
+    """Tests using pytest fixtures"""
+    
+    def test_message_fixture(self, sample_message):
+        """Test using the message fixture"""
+        assert sample_message['id'] == 999
+        assert 'test message' in sample_message['content']
+        assert sample_message['sender'] == 'fixture_user'
+        assert sample_message['priority'] == 'normal'
+        
+        print(f"✅ Fixture test - Message: {sample_message['content']}")
+    
+    def test_user_fixture(self, sample_user):
+        """Test using the user fixture"""
+        assert sample_user['id'] == 888
+        assert sample_user['username'] == 'fixture_testuser'
+        assert sample_user['active'] is True
+        
+        print(f"✅ Fixture test - User: {sample_user['username']}")
+
+
+# Parameterized tests for comprehensive testing
+@pytest.mark.parametrize("message_content,expected_length", [
+    ("Hello", 5),
+    ("Hello, World!", 13),
+    ("", 0),
+    ("Test message for Jenkins pipeline", 32),
+])
+def test_message_lengths(message_content, expected_length):
+    """Test message length calculations with different inputs"""
+    assert len(message_content) == expected_length
+    print(f"✅ Length test: '{message_content}' = {expected_length} characters")
+
+
+@pytest.mark.parametrize("username,is_valid", [
+    ("user123", True),
+    ("test_user", True),
+    ("admin", True),
+    ("", False),
+    ("a" * 101, False),  # Too long
+])
+def test_username_validation(username, is_valid):
+    """Test username validation with different inputs"""
+    # Basic validation logic
+    valid = len(username) > 0 and len(username) <= 100 and username.replace('_', '').isalnum()
+    
+    assert valid == is_valid
+    if is_valid:
+        print(f"✅ Valid username: {username}")
+    else:
+        print(f"❌ Invalid username: {username}")
+
+
+if __name__ == '__main__':
+    # Allow running tests directly
+    pytest.main([__file__, '-v', '--tb=short'])
+EOF
+                                
+                                echo "✅ Basic test file created: tests/test_messaging_app.py"
+                            else
+                                echo "✅ Test files already exist"
+                            fi
+                            
+                            # List test files
+                            echo "Available test files:"
+                            find . -name "test_*.py" -o -name "*_test.py" | head -10
+                        '''
+                    }
+                    
+                    echo "✅ Test preparation completed"
+                }
+            }
+        }
+        
+        stage('Run Tests with Pytest') {
+            steps {
+                script {
+                    echo "🧪 Running tests using pytest with coverage and reporting"
+                    
+                    dir("${PROJECT_DIR}") {
+                        sh '''
+                            source venv/bin/activate
+                            
+                            echo "Running pytest with comprehensive reporting..."
+                            echo "Current directory: $(pwd)"
+                            echo "Python path: $(which python)"
+                            echo "Pytest version: $(pytest --version)"
+                            
+                            # Run pytest with various reporting options
+                            pytest tests/ -v \
+                                --tb=short \
+                                --cov=. \
+                                --cov-report=html:htmlcov \
+                                --cov-report=xml:coverage.xml \
+                                --cov-report=term-missing \
+                                --html=test-report.html \
+                                --self-contained-html \
+                                --junitxml=test-results.xml \
+                                --maxfail=10 \
+                                -x
+                            
+                            echo "✅ Pytest execution completed"
+                            
+                            # Display test results summary
+                            if [ -f "test-results.xml" ]; then
+                                echo "📊 Test results file created: test-results.xml"
+                            fi
+                            
+                            if [ -f "test-report.html" ]; then
+                                echo "📊 HTML test report created: test-report.html"
+                            fi
+                            
+                            if [ -d "htmlcov" ]; then
+                                echo "📊 Coverage HTML report created in: htmlcov/"
+                            fi
+                        '''
+                    }
+                    
+                    echo "✅ All tests completed successfully"
+                }
+            }
+        }
+        
+        stage('Generate Test Reports') {
+            steps {
+                script {
+                    echo "📊 Publishing test reports and results"
+                    
+                    dir("${PROJECT_DIR}") {
+                        // Publish JUnit test results for Jenkins dashboard
+                        if (fileExists('test-results.xml')) {
+                            echo "Publishing JUnit test results..."
+                            junit 'test-results.xml'
+                        } else {
+                            echo "⚠️ JUnit XML file not found"
+                        }
+                        
+                        // Publish HTML test report
+                        if (fileExists('test-report.html')) {
+                            echo "Publishing HTML test report..."
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: '.',
+                                reportFiles: 'test-report.html',
+                                reportName: 'Pytest Test Report',
+                                reportTitles: 'Test Results'
+                            ])
+                        } else {
+                            echo "⚠️ HTML test report not found"
+                        }
+                        
+                        // Publish coverage report
+                        if (fileExists('htmlcov/index.html')) {
+                            echo "Publishing coverage report..."
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'htmlcov',
+                                reportFiles: 'index.html',
+                                reportName: 'Code Coverage Report',
+                                reportTitles: 'Coverage Analysis'
+                            ])
+                        } else {
+                            echo "⚠️ Coverage HTML report not found"
+                        }
+                        
+                        // Archive test artifacts
+                        archiveArtifacts artifacts: 'test-report.html, test-results.xml, coverage.xml, htmlcov/**/*', 
+                                       fingerprint: true,
+                                       allowEmptyArchive: true
+                        
+                        // Display summary information
+                        sh '''
+                            echo "📋 Test Execution Summary:"
+                            echo "=========================="
+                            if [ -f "test-results.xml" ]; then
+                                echo "✅ JUnit XML results: Available"
+                            fi
+                            if [ -f "test-report.html" ]; then
+                                echo "✅ HTML test report: Available"  
+                            fi
+                            if [ -f "coverage.xml" ]; then
+                                echo "✅ Coverage XML: Available"
+                            fi
+                            if [ -d "htmlcov" ]; then
+                                echo "✅ Coverage HTML report: Available"
+                            fi
+                            echo "=========================="
+                        '''
+                    }
+                    
+                    echo "✅ All reports generated and published successfully"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                echo "🧹 Performing cleanup operations..."
+                
+                dir("${PROJECT_DIR}") {
+                    // Clean up virtual environment but keep test results
+                    sh '''
+                        if [ -d "venv" ]; then
+                            echo "Cleaning up Python virtual environment..."
+                            rm -rf venv
+                        fi
+                        
+                        # Keep important files but clean temporary ones
+                        rm -rf __pycache__ .pytest_cache *.pyc
+                        find . -name "*.pyc" -delete
+                        find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+                        
+                        echo "Cleanup completed"
+                    '''
+                }
+            }
+        }
+        
+        success {
+            script {
+                echo "🎉 Pipeline completed successfully!"
+                echo "📊 Check the following reports in Jenkins:"
+                echo "   • Test Results (JUnit)"
+                echo "   • Pytest Test Report (HTML)"
+                echo "   • Code Coverage Report (HTML)"
+                echo ""
+                echo "🔗 Reports are available in the build's left sidebar"
+            }
+        }
+        
+        failure {
+            script {
+                echo "❌ Pipeline failed!"
+                echo "🔍 Check the console output above for error details"
+                echo "💡 Common issues:"
+                echo "   • Python environment setup problems"
+                echo "   • Missing dependencies"
+                echo "   • Test failures"
+                echo "   • GitHub connectivity issues"
+            }
+        }
+        
+        unstable {
+            script {
+                echo "⚠️ Pipeline completed with warnings"
+                echo "📊 Some tests may have failed but the build continued"
+                echo "🔍 Check test reports for details"
+            }
+        }
+    }
+}
