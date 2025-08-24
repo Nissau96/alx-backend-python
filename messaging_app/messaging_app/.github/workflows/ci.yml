@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: ["main"]
 
-# A workflow run is made up of one or more jobs
+
 jobs:
   build:
     # The type of runner that the job will run on
@@ -27,7 +27,7 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    
     steps:
       # Step 1: Checks-out your repository
       - name: Checkout repository
@@ -46,7 +46,7 @@ jobs:
           pip install flake8 coverage
           pip install -r messaging_app/requirements.txt
 
-      # Step 4 (New): Runs flake8 for linting checks
+      # Step 4 : Runs flake8 for linting checks
       - name: Lint with flake8
         run: |
           # Stop the build if there are Python syntax errors or undefined names
@@ -54,7 +54,7 @@ jobs:
           # Exit-zero treats all errors as warnings.
           flake8 messaging_app/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      # Step 5 (Updated): Runs tests and generates a coverage report
+      # Step 5 : Runs tests and generates a coverage report
       - name: Run Tests with Coverage
         env:
           DB_ENGINE: django.db.backends.mysql
@@ -70,7 +70,7 @@ jobs:
           # Generate an HTML report in a directory named 'htmlcov'
           coverage html
 
-      # Step 6 (New): Uploads the coverage report as a build artifact
+      # Step 6 : Uploads the coverage report as a build artifact
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
