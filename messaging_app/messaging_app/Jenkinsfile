@@ -1,6 +1,6 @@
 // Declarative Pipeline
 pipeline {
-    // Use a Docker agent for a clean, reproducible build environment.
+   
     agent {
         docker {
             image 'python:3.12-slim'
@@ -11,8 +11,7 @@ pipeline {
         // Stage 1: Checkout code from GitHub
         stage('Checkout SCM') {
             steps {
-                // This step uses the repository and credentials you configured in the Jenkins
-                // job UI. It's the standard, secure way to check out code and implicitly
+                
                 // uses a 'git branch' and 'credentialsId'.
                 checkout scm
             }
@@ -21,7 +20,7 @@ pipeline {
         // Stage 2: Install project dependencies
         stage('Install Dependencies') {
             steps {
-                // Run commands from the workspace root to use the full path required by the checker.
+                
                 sh '''
                     echo "Setting up Python environment..."
                     # Create the virtual environment inside the app directory
