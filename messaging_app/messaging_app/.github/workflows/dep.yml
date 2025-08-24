@@ -1,20 +1,20 @@
 # Name for the GitHub Actions workflow
 name: Build and Push to Docker Hub
 
-# This workflow runs only when a push event occurs on the "main" branch
+
 on:
   push:
     branches: ["main"]
 
-# Defines a single job called "build-and-push"
+
 jobs:
   build-and-push:
-    # The job runs on the latest version of Ubuntu
+   
     runs-on: ubuntu-latest
 
-    # The steps that make up the job
+  
     steps:
-      # Step 1: Checks out your repository's code so the workflow can access it
+      # Step 1: Checks out repository's code so the workflow can access it
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -25,13 +25,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Step 3: Builds the Docker image and pushes it to your Docker Hub repository
+      # Step 3: Builds the Docker image and pushes it to Docker Hub repository
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          # The context is the directory containing the Dockerfile
           context: ./messaging_app
-          # This flag tells the action to push the image after building
+          
           push: true
-          # The image tag is constructed using your Docker Hub username and a repository name
+          
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/messaging-app:latest
